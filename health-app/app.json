@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Agarwal Health",
+    "slug": "agarwal-health",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "resizeMode": "contain",
+      "backgroundColor": "#0D1B2A"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.agarwal.health",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Used to photograph meals for AI nutritional analysis",
+        "NSPhotoLibraryUsageDescription": "Used to select meal photos from your gallery"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0D1B2A"
+      },
+      "package": "com.agarwal.health",
+      "permissions": ["CAMERA", "READ_EXTERNAL_STORAGE"]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-camera",
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Allow Agarwal Health to access your photos to log meals."
+        }
+      ]
+    ],
+    "scheme": "agarwal-health",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
