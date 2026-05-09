@@ -43,8 +43,7 @@
     ],
     "scheme": "agarwal-health",
     "experiments": {
-      "typedRoutes": true,
-      "reactCanary": false
+      "typedRoutes": true
     }
   }
 }
