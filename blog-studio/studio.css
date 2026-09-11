@@ -1,0 +1,260 @@
+/* The Trip Keeper — Journal Studio
+ *
+ * Two registers on purpose, and the brand book says not to blend them:
+ *
+ *   The studio chrome is the ADMIN register (p45) — straight edges, 5-8px
+ *   radii, 2px borders, no rotation, tight density. It is a tool someone uses
+ *   for an hour at a time.
+ *
+ *   The post itself is the PUBLIC register (p24-27) — 3px ink borders, the two
+ *   wobbly radii alternated, hard offset shadows, a slight tilt and the wavy
+ *   underline. Because that is how it will look on thetripkeeper.com, and the
+ *   point of a preview is to show the real thing.
+ *
+ * Single visual world: paper ground, ink type, two brand colours, no black.
+ */
+
+:root {
+  --tk-yellow: #FFD23F;
+  --tk-blue:   #2B54D6;
+  --tk-ink:    #10265A;
+  --tk-paper:  #F2F5FF;
+  --tk-white:  #FFFFFF;
+
+  --ink-soft:   #5b6684;
+  --ink-muted:  #8FA6D8;
+  --line-soft:  #C6D2EC;
+  --paper-tint: #EEF2FC;
+
+  --success: #1E7A46;
+  --danger:  #B3261E;
+  --warning: #F9A825;
+
+  --display: 'Bricolage Grotesque', -apple-system, 'Segoe UI', sans-serif;
+  --hand:    'Caveat', cursive;
+  --body:    'DM Sans', -apple-system, 'Segoe UI', sans-serif;
+
+  --wobble-a: 255px 15px 225px 15px / 15px 225px 15px 255px;
+  --wobble-b: 15px 225px 15px 255px / 225px 15px 255px 15px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--tk-paper);
+  color: var(--tk-ink);
+  font-family: var(--body);
+  font-weight: 500;
+  font-size: 1rem;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4 { font-family: var(--display); font-weight: 800; margin: 0; text-wrap: balance; }
+h2 { font-size: 1.45rem; letter-spacing: -.03em; }
+h3 { font-size: 1.15rem; font-weight: 700; letter-spacing: -.02em; }
+h4 { font-size: .98rem; font-weight: 700; }
+p { margin: 0; text-wrap: pretty; }
+a { color: var(--tk-blue); font-weight: 700; text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 3px solid var(--tk-ink); outline-offset: 2px; }
+
+.hand { font-family: var(--hand); font-weight: 700; font-size: 1.15rem; color: var(--tk-blue); line-height: 1.2; }
+.hand-y { color: var(--tk-yellow); }
+
+/* ------------------------------------------------------ studio chrome */
+
+.top {
+  background: var(--tk-ink); color: var(--tk-paper);
+  border-bottom: 3px solid var(--tk-ink);
+  padding: 14px 26px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap;
+}
+.mark { font-family: var(--display); font-weight: 800; font-size: 1.3rem; line-height: 1; color: var(--tk-yellow); letter-spacing: -.035em; }
+.top-id { flex: 1 1 240px; min-width: 0; }
+
+.tabs {
+  display: flex; padding: 0 26px; background: var(--tk-paper);
+  border-bottom: 3px solid var(--tk-ink); position: sticky; top: 0; z-index: 20; overflow-x: auto;
+}
+.tab {
+  border: 0; background: none; cursor: pointer; font-family: var(--body); font-weight: 700; font-size: .95rem;
+  color: var(--ink-soft); padding: 13px 18px; border-bottom: 3px solid transparent; margin-bottom: -3px; white-space: nowrap;
+}
+.tab:hover { color: var(--tk-ink); }
+.tab[aria-selected="true"] { color: var(--tk-ink); border-bottom-color: var(--tk-blue); }
+.tab .count { font-family: var(--display); font-weight: 800; margin-left: 6px; }
+
+.pane { padding: 24px 26px 40px; display: none; }
+.pane.on { display: block; }
+
+.studio-grid { display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 22px; align-items: start; }
+
+.btn {
+  font-family: var(--body); font-weight: 700; font-size: .94rem; cursor: pointer;
+  border: 2px solid var(--tk-ink); border-radius: 7px; padding: 11px 16px; min-height: 44px;
+  background: var(--tk-white); color: var(--tk-ink);
+  box-shadow: 4px 4px 0 var(--tk-ink); transition: transform .12s, box-shadow .12s;
+}
+.btn:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--tk-ink); }
+.btn-primary { background: var(--tk-blue); color: var(--tk-yellow); }
+.btn-yellow  { background: var(--tk-yellow); color: var(--tk-ink); }
+.btn-lg { font-size: 1.05rem; padding: 15px 22px; box-shadow: 6px 6px 0 var(--tk-ink); }
+.btn-lg:hover { transform: translate(3px, 3px); box-shadow: 3px 3px 0 var(--tk-ink); }
+.btn-sm { padding: 7px 11px; font-size: .82rem; min-height: 36px; box-shadow: 3px 3px 0 var(--tk-ink); border-radius: 6px; }
+.btn-sm:hover { box-shadow: 1px 1px 0 var(--tk-ink); }
+.btn-quiet { background: none; border-style: dashed; box-shadow: none; }
+.btn-quiet:hover { transform: none; box-shadow: none; background: var(--paper-tint); }
+.btn[disabled] { box-shadow: none; border-color: var(--line-soft); color: var(--ink-muted); cursor: not-allowed; transform: none; }
+.btn-onink { background: var(--tk-yellow); color: var(--tk-ink); box-shadow: 4px 4px 0 var(--tk-blue); }
+.btn-onink:hover { box-shadow: 2px 2px 0 var(--tk-blue); }
+
+.card2 { border: 2px solid var(--tk-ink); border-radius: 8px; background: var(--tk-white); padding: 16px 18px; }
+.card2-y { background: var(--tk-yellow); }
+.card2-tint { background: var(--paper-tint); }
+
+.pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-size: .76rem; font-weight: 700; padding: 3px 9px; border-radius: 20px;
+  border: 2px solid var(--tk-ink); background: var(--tk-white); white-space: nowrap;
+}
+.pill-good { background: var(--success); color: var(--tk-white); }
+.pill-bad  { background: var(--danger);  color: var(--tk-white); }
+.pill-y    { background: var(--tk-yellow); color: var(--tk-ink); }
+.pill-blue { background: var(--tk-blue); color: var(--tk-yellow); }
+.chip {
+  display: inline-block; font-size: .74rem; font-weight: 700; padding: 2px 8px;
+  border: 2px solid var(--line-soft); border-radius: 6px; color: var(--ink-soft); background: var(--tk-white);
+}
+.divider-soft { border: 0; border-top: 1px dashed var(--line-soft); margin: 12px 0; }
+
+progress.meter { -webkit-appearance: none; appearance: none; width: 100%; height: 12px; border: 2px solid var(--tk-ink); border-radius: 6px; background: var(--paper-tint); display: block; }
+progress.meter::-webkit-progress-bar { background: var(--paper-tint); border-radius: 4px; }
+progress.meter::-webkit-progress-value { background: var(--tk-blue); border-radius: 3px 0 0 3px; }
+progress.meter::-moz-progress-bar { background: var(--tk-blue); border-radius: 3px 0 0 3px; }
+progress.meter.over::-webkit-progress-value { background: var(--danger); }
+progress.meter.over::-moz-progress-bar { background: var(--danger); }
+
+/* Rules list: a word and a glyph, never colour alone. */
+.rules { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.rules li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; font-size: .86rem; line-height: 1.4; align-items: start; }
+.rules .g { font-weight: 700; font-family: var(--display); }
+.rules .ok .g   { color: var(--success); }
+.rules .no .g   { color: var(--danger); }
+.rules .no      { color: var(--danger); font-weight: 700; }
+.rules small { display: block; color: var(--ink-soft); font-weight: 500; }
+.rules .no small { color: var(--danger); }
+
+/* --------------------------------------------- the post, public register */
+
+.stage { padding: 8px 10px 20px; }
+.stage-label {
+  display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap;
+  margin-bottom: 14px; padding-bottom: 8px; border-bottom: 2px dashed var(--tk-ink);
+}
+
+.post {
+  border: 3px solid var(--tk-ink);
+  border-radius: var(--wobble-a);
+  background: var(--tk-white);
+  box-shadow: 9px 9px 0 var(--tk-ink);
+  padding: 34px 38px 30px;
+  transform: rotate(-0.6deg);
+}
+.post-head {
+  font-family: var(--display); font-weight: 800;
+  font-size: clamp(1.9rem, 3.6vw, 2.7rem); line-height: .99; letter-spacing: -.035em;
+  margin: 0 0 18px; padding-bottom: 12px; text-wrap: balance;
+}
+.post-head .wavy {
+  text-decoration: underline wavy var(--tk-blue);
+  text-decoration-thickness: 5px;
+  text-underline-offset: 9px;
+}
+.post-sub { font-family: var(--hand); font-weight: 700; font-size: 1.55rem; color: var(--tk-blue); line-height: 1.15; margin-bottom: 20px; }
+.post-body { font-size: 1.08rem; line-height: 1.75; display: grid; gap: 14px; }
+.post-body ul { margin: 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+.post-body ul li { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 9px; }
+.post-body ul li::before { content: '\2713'; color: var(--tk-blue); font-weight: 700; }
+.post-rule { border: 0; border-top: 2px dashed var(--tk-ink); margin: 24px 0 18px; }
+.post-sources { display: grid; gap: 8px; }
+.post-sources .lab { font-family: var(--hand); font-weight: 700; font-size: 1.25rem; color: var(--tk-blue); }
+.post-sources a { display: grid; grid-template-columns: 20px minmax(0, 1fr); gap: 8px; font-size: 1rem; line-height: 1.45; }
+.post-sources a::before { content: '\2192'; color: var(--tk-blue); font-weight: 700; }
+.post-foot { margin-top: 18px; font-size: .88rem; color: var(--ink-soft); }
+
+.placeholder-flag {
+  display: inline-block; font-family: var(--hand); font-weight: 700; font-size: 1.1rem;
+  background: var(--tk-yellow); border: 2px solid var(--tk-ink); border-radius: 6px;
+  padding: 3px 10px; transform: rotate(-2deg);
+}
+
+/* -------------------------------------------------------------- queue */
+
+.queue { display: grid; gap: 12px; }
+.qitem {
+  border: 2px solid var(--tk-ink); border-radius: 8px; background: var(--tk-white);
+  padding: 15px 17px; display: grid; gap: 9px;
+}
+.qitem.used { background: var(--paper-tint); }
+.qitem.active { background: var(--tk-yellow); }
+.qitem-top { display: flex; align-items: flex-start; gap: 11px; flex-wrap: wrap; }
+.qitem h3 { flex: 1 1 280px; min-width: 0; }
+.qfacts { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; font-size: .88rem; color: var(--tk-ink); }
+.qfacts li { display: grid; grid-template-columns: 16px minmax(0,1fr); gap: 7px; }
+.qfacts li::before { content: '\00B7'; color: var(--tk-blue); font-weight: 700; }
+.qsrc { display: flex; gap: 10px; flex-wrap: wrap; font-size: .84rem; }
+
+/* ------------------------------------------------------------ status */
+
+.status { display: flex; align-items: center; gap: 9px; font-size: .92rem; font-weight: 700; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--tk-blue); flex: none; }
+.working .dot { animation: tkPulse 1.6s infinite; }
+@keyframes tkPulse { 0%,100% { opacity: 1 } 50% { opacity: .35 } }
+
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+  background: var(--tk-ink); color: var(--tk-yellow); font-weight: 700; font-size: .92rem;
+  border: 2px solid var(--tk-ink); border-radius: 7px; padding: 11px 18px; z-index: 90;
+  box-shadow: 4px 4px 0 var(--tk-blue);
+}
+.toast[hidden] { display: none !important; }
+
+.field { display: block; }
+.field > span { display: block; font-size: .86rem; font-weight: 700; margin-bottom: 5px; }
+.field input[type="text"] {
+  font-family: var(--body); font-size: 16px; font-weight: 500; width: 100%;
+  border: 2px solid var(--tk-ink); border-radius: 8px; padding: 12px; background: var(--tk-white); color: var(--tk-ink);
+}
+.field input::placeholder { color: #7d88a8; }
+
+.empty { border: 3px dashed var(--tk-ink); border-radius: 9px; padding: 28px 24px; text-align: center; }
+
+/* ------------------------------------------------------------ mobile */
+
+@media (max-width: 980px) {
+  .studio-grid { grid-template-columns: 1fr; }
+}
+
+/* The wobble comes off at phone width — at 390px an irregular radius reads as
+ * a rendering bug rather than a drawing. Tilt goes too. */
+@media (max-width: 620px) {
+  .post { border-radius: 14px; transform: none; box-shadow: 5px 5px 0 var(--tk-ink); padding: 22px 20px; }
+  .post-head { font-size: 1.85rem; }
+  .post-head .wavy { text-decoration-thickness: 4px; }
+  .post-sub { font-size: 1.3rem; }
+  .placeholder-flag { transform: none; }
+  .pane, .tabs, .top { padding-left: 20px; padding-right: 20px; }
+  .stage { padding-left: 0; padding-right: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation: none !important; transition: none !important; }
+  .btn:hover { transform: none; }
+}
+
+@media print {
+  .top, .tabs, .rail, .btn { display: none !important; }
+  .pane { display: block !important; }
+  .post { box-shadow: none; transform: none; }
+}
