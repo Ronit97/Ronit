@@ -443,7 +443,7 @@ export async function assess(text, shared, sampler, onProgress) {
     return { assessment: rulesAssess(text, shared), mode: 'rules' };
   }
 
-  onProgress?.('Claude is reading the quote against all 12 categories.');
+  onProgress?.('Claude is reading the quote against all 12 categories. This takes up to a minute or two on a long one.');
   let raw;
   try {
     raw = await sampler.json(
@@ -451,10 +451,15 @@ export async function assess(text, shared, sampler, onProgress) {
       { modelTier: 'complex', onText: () => onProgress?.('Scoring against the rubric.') }
     );
   } catch (err) {
-    if (err && err.code === 'not_granted') {
-      onProgress?.('Claude was not available, so the rules pass read it instead.');
+    const code = err && err.code;
+    if (code === 'not_granted' || code === 'invalid_json') {
+      onProgress?.(code === 'not_granted'
+        ? 'Claude was not available, so the rules pass read it instead.'
+        : 'Claude\'s answer came back unreadable, so the rules pass read it instead.');
       return { assessment: rulesAssess(text, shared), mode: 'rules' };
     }
+    if (code === 'rate_limited') throw new Error('Too many requests at once. Wait a minute and score it again.');
+    if (code === 'resource_exhausted') throw new Error('That used up the quota for now. Try again later, or paste a shorter extract.');
     throw new Error(err?.message || 'Claude could not read that quote. Try again, or paste less of it.');
   }
 

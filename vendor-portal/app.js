@@ -43,17 +43,21 @@ async function connectDb() {
   if (!state.db) return;
   try {
     const snap = await state.db.collection('assessments').get();
-    const docs = (snap?.docs || snap || []).map(d => (typeof d.data === 'function' ? d.data() : d)).filter(Boolean);
-    for (const doc of docs) {
-      if (!doc || !doc.id) continue;
+    let loaded = 0;
+    for (const d of (snap?.docs || [])) {
+      if (!d?.exists) continue;
+      const body = d.data();
+      if (!body) continue;
+      const doc = { ...body, id: body.id || d.id };
       const i = state.assessments.findIndex(a => a.id === doc.id);
       if (i >= 0) state.assessments[i] = doc; else state.assessments.push(doc);
+      loaded++;
     }
     const prefs = await state.db.doc('prefs/portal').get();
-    const p = typeof prefs?.data === 'function' ? prefs.data() : prefs;
+    const p = prefs?.exists ? prefs.data() : null;
     if (p?.qStatus) state.qStatus = p.qStatus;
     if (p?.shared) state.shared = { ...state.shared, ...p.shared };
-    if (docs.length || p) { recompute(); render(); }
+    if (loaded || p) { recompute(); render(); }
   } catch { /* a page that cannot reach storage still works, it just forgets */ }
 }
 
@@ -634,6 +638,7 @@ $('#do-score').addEventListener('click', async () => {
   setStatus('Starting.', true);
   try {
     const { assessment, mode } = await assess(text, state.shared, state.sampler, m => setStatus(m, true));
+    /* progress messages come from assess() as it goes */
     const nameOverride = $('#v-name').value.trim();
     if (nameOverride) assessment.vendor.name = nameOverride;
 
